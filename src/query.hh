@@ -81,6 +81,7 @@ struct QueryType : QueryEntity<QueryType, TypeDef<Vec>> {
   std::vector<Usr> derived;
   std::vector<Usr> instances;
   std::vector<Use> uses;
+  int type_size = 0;
 };
 
 struct QueryVar : QueryEntity<QueryVar, VarDef> {
@@ -123,6 +124,7 @@ struct IndexUpdate {
   Update<Use> types_uses;
   Update<Usr> types_derived;
   Update<Usr> types_instances;
+  std::unordered_map<Usr, int> types_sizes;
 
   // Variable updates.
   int vars_hint;
