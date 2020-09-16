@@ -383,13 +383,11 @@ void DB::applyIndexUpdate(IndexUpdate *u) {
   for (auto &[usr, p] : u->types_uses)
     updateUses(usr, Kind::Type, type_usr, types, p, false);
 
-  for (auto &[usr, p] : u->types_sizes)
-  {
+  for (auto &[usr, p] : u->types_sizes) {
     auto r = type_usr.find(usr);
-    if (r != type_usr.end())
-    {
+    if (r != type_usr.end()) {
       auto &qt = types[r->second];
-      qt.type_size = p;//updating type size
+      qt.type_size = p; // updating type size
     }
   }
 

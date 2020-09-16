@@ -295,7 +295,8 @@ struct Config {
 
     std::vector<std::string> whitelist;
 
-    //if true (default), type sizes (also built-in) are determined during indexing
+    // if true (default), type sizes (also built-in) are determined during
+    // indexing
     bool determineTypeSizes = true;
   } index;
 

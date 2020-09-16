@@ -686,8 +686,7 @@ public:
     }
   }
 
-  void updateTypeSize(IndexType::Def &def, QualType qt) const
-  {
+  void updateTypeSize(IndexType::Def &def, QualType qt) const {
     if (def.type_size || !g_config->index.determineTypeSizes)
       return;
     // this is basically a copy-paste of libclang's clang_Type_getSizeOf
@@ -714,18 +713,18 @@ public:
     // [gcc extension] lib/AST/ExprConstant.cpp:1372
     //                 HandleSizeof : {voidtype,functype} == 1
     // not handled by ASTContext.cpp:1313 getTypeInfoImpl
-    if (qt->isVoidType() || qt->isFunctionType())
-    {
+    if (qt->isVoidType() || qt->isFunctionType()) {
       def.type_size = 1;
       return;
     }
     def.type_size = Ctx.getTypeSizeInChars(qt).getQuantity();
   }
+
 public:
   IndexDataConsumer(IndexParam &param) : param(param) {}
   void initialize(ASTContext &ctx) override { this->ctx = param.ctx = &ctx; }
 #if LLVM_VERSION_MAJOR < 10 // llvmorg-10-init-12036-g3b9715cb219
-# define handleDeclOccurrence handleDeclOccurence
+#define handleDeclOccurrence handleDeclOccurence
 #endif
   bool handleDeclOccurrence(const Decl *d, index::SymbolRoleSet roles,
                             ArrayRef<index::SymbolRelation> relations,
@@ -884,13 +883,11 @@ public:
       }
       if (is_def || is_decl) {
         const Decl *dc = cast<Decl>(sem_dc);
-        if (getKind(dc, ls_kind) == Kind::Type)
-        {
+        if (getKind(dc, ls_kind) == Kind::Type) {
           auto &index_type = db->toType(getUsr(dc));
           index_type.def.type_size = 0;
           const TypeDecl *pTD = dyn_cast<TypeDecl>(d);
-          if (pTD)
-          {
+          if (pTD) {
             QualType qt = ctx->getTypeDeclType(pTD);
             updateTypeSize(index_type.def, qt);
           }
@@ -915,8 +912,7 @@ public:
         Kind kind = getKind(dc, var->def.parent_kind);
         if (kind == Kind::Func)
           db->toFunc(getUsr(dc)).def.vars.push_back(usr);
-        else if (kind == Kind::Type && !isa<RecordDecl>(sem_dc))
-        {
+        else if (kind == Kind::Type && !isa<RecordDecl>(sem_dc)) {
           auto &index_type = db->toType(getUsr(dc));
           index_type.def.vars.emplace_back(usr, -1);
           updateTypeSize(index_type.def, t);
@@ -940,10 +936,10 @@ public:
                 Usr usr1 = getUsr(d1, &info1);
                 IndexType &type1 = db->toType(usr1);
                 SourceLocation sl1 = d1->getLocation();
-                type1.def.spell = {
-                    Use{{fromTokenRange(sm, lang, {sl1, sl1}), Role::Definition},
-                        lid},
-                    fromTokenRange(sm, lang, sr1)};
+                type1.def.spell = {Use{{fromTokenRange(sm, lang, {sl1, sl1}),
+                                        Role::Definition},
+                                       lid},
+                                   fromTokenRange(sm, lang, sr1)};
                 type1.def.detailed_name = intern(info1->short_name);
                 type1.def.short_name_size = int16_t(info1->short_name.size());
                 type1.def.kind = SymbolKind::TypeParameter;
@@ -1274,7 +1270,7 @@ class IndexDiags : public DiagnosticConsumer {
 public:
   llvm::SmallString<64> message;
   void HandleDiagnostic(DiagnosticsEngine::Level level,
-    const clang::Diagnostic &info) override {
+                        const clang::Diagnostic &info) override {
     DiagnosticConsumer::HandleDiagnostic(level, info);
     if (message.empty())
       info.FormatDiagnostic(message);
@@ -1282,7 +1278,7 @@ public:
 };
 } // namespace
 
-const int IndexFile::kMajorVersion = 21;
+const int IndexFile::kMajorVersion = 22;
 const int IndexFile::kMinorVersion = 0;
 
 IndexFile::IndexFile(const std::string &path, const std::string &contents,
