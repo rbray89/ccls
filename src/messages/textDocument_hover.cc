@@ -22,11 +22,23 @@ struct Hover {
   std::optional<lsRange> range;
 
   void add(MarkupContent const &m) {
+    contents.kind = m.kind;
+    add_separator();
+    contents.value += m.value;
+  }
+
+  void add(std::string_view hover) {
+    contents.kind = MarkupKind::PlainText;
+    add_separator();
+    contents.value += hover;
+  }
+
+private:
+  void add_separator() {
     if (!contents.value.empty()) {
       contents.value += "\n___\n";
       contents.kind = MarkupKind::Markdown;
     }
-    contents.value += m.value;
   }
 };
 
@@ -46,7 +58,9 @@ const char *languageIdentifier(LanguageId lang) {
 }
 
 std::string markdown_code(LanguageId lang, std::string_view code) {
-  std::string str = "```";
+  std::string str;
+  str.reserve(3 + 13 + 1 + code.size() + 4 + 1);
+  str = "```";
   str += languageIdentifier(lang);
   str += "\n";
   str += code;
@@ -113,6 +127,12 @@ void MessageHandler::textDocument_hover(TextDocumentPositionParam &param,
         result.add(*comments);
       if (hover)
         result.add(*hover);
+      if (sym.kind == Kind::Type) {
+        unsigned size = db->getType(sym.usr).type_size;
+        if (size != 0) {
+          result.add("sizeof: " + std::to_string(size));
+        }
+      }
       break;
     }
   }
