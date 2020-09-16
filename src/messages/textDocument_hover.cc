@@ -4,29 +4,33 @@
 #include "message_handler.hh"
 #include "query.hh"
 
+#include <string_view>
+
 namespace ccls {
 namespace {
-struct MarkedString {
-  std::optional<std::string> language;
+namespace MarkupKind {
+constexpr std::string_view PlainText = "plaintext";
+constexpr std::string_view Markdown = "markdown";
+} // namespace MarkupKind
+
+struct MarkupContent {
+  std::string_view kind{MarkupKind::Markdown};
   std::string value;
 };
 struct Hover {
-  std::vector<MarkedString> contents;
+  MarkupContent contents;
   std::optional<lsRange> range;
+
+  void add(MarkupContent const &m) {
+    if (!contents.value.empty()) {
+      contents.value += "\n___\n";
+      contents.kind = MarkupKind::Markdown;
+    }
+    contents.value += m.value;
+  }
 };
 
-void reflect(JsonWriter &vis, MarkedString &v) {
-  // If there is a language, emit a `{language:string, value:string}` object. If
-  // not, emit a string.
-  if (v.language) {
-    vis.startObject();
-    REFLECT_MEMBER(language);
-    REFLECT_MEMBER(value);
-    vis.endObject();
-  } else {
-    reflect(vis, v.value);
-  }
-}
+REFLECT_STRUCT(MarkupContent, kind, value);
 REFLECT_STRUCT(Hover, contents, range);
 
 const char *languageIdentifier(LanguageId lang) {
@@ -41,11 +45,20 @@ const char *languageIdentifier(LanguageId lang) {
   }
 }
 
+std::string markdown_code(LanguageId lang, std::string_view code) {
+  std::string str = "```";
+  str += languageIdentifier(lang);
+  str += "\n";
+  str += code;
+  str += "\n```";
+  return str;
+}
+
 // Returns the hover or detailed name for `sym`, if any.
-std::pair<std::optional<MarkedString>, std::optional<MarkedString>>
+std::pair<std::optional<MarkupContent>, std::optional<MarkupContent>>
 getHover(DB *db, LanguageId lang, SymbolRef sym, int file_id) {
   const char *comments = nullptr;
-  std::optional<MarkedString> ls_comments, hover;
+  std::optional<MarkupContent> ls_comments, hover;
   withEntity(db, sym, [&](const auto &entity) {
     for (auto &d : entity.def) {
       if (!comments && d.comments[0])
@@ -57,7 +70,7 @@ getHover(DB *db, LanguageId lang, SymbolRef sym, int file_id) {
                 d.hover[0] ? d.hover
                            : d.detailed_name[0] ? d.detailed_name : nullptr) {
           if (!hover)
-            hover = {languageIdentifier(lang), s};
+            hover = {MarkupKind::Markdown, markdown_code(lang, s)};
           else if (strlen(s) > hover->value.size())
             hover->value = s;
         }
@@ -67,14 +80,14 @@ getHover(DB *db, LanguageId lang, SymbolRef sym, int file_id) {
     }
     if (!hover && entity.def.size()) {
       auto &d = entity.def[0];
-      hover = {languageIdentifier(lang)};
+      hover = MarkupContent{};
       if (d.hover[0])
-        hover->value = d.hover;
+        hover->value = markdown_code(lang, d.hover);
       else if (d.detailed_name[0])
-        hover->value = d.detailed_name;
+        hover->value = markdown_code(lang, d.detailed_name);
     }
     if (comments)
-      ls_comments = MarkedString{std::nullopt, comments};
+      ls_comments = MarkupContent{MarkupKind::Markdown, comments};
   });
   return {hover, ls_comments};
 }
@@ -97,9 +110,9 @@ void MessageHandler::textDocument_hover(TextDocumentPositionParam &param,
     if (comments || hover) {
       result.range = *ls_range;
       if (comments)
-        result.contents.push_back(*comments);
+        result.add(*comments);
       if (hover)
-        result.contents.push_back(*hover);
+        result.add(*hover);
       break;
     }
   }
