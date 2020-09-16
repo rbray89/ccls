@@ -198,7 +198,7 @@ struct TypeDef : NameMixin<TypeDef<V>> {
   // type comes from a using or typedef statement).
   Usr alias_of = 0;
   int file_id = -1; // not serialized
-  int type_size = 0;
+  unsigned type_size = 0;
   int16_t qual_name_offset = 0;
   int16_t short_name_offset = 0;
   int16_t short_name_size = 0;

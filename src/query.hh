@@ -81,7 +81,7 @@ struct QueryType : QueryEntity<QueryType, TypeDef<Vec>> {
   std::vector<Usr> derived;
   std::vector<Usr> instances;
   std::vector<Use> uses;
-  int type_size = 0;
+  unsigned type_size = 0;
 };
 
 struct QueryVar : QueryEntity<QueryVar, VarDef> {
