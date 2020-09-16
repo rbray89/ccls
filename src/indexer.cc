@@ -448,8 +448,15 @@ public:
       } else {
         // Other lines, skip |pad| bytes
         int prefix = pad;
+        // skip spaces first
+        while (prefix > 0 && p < e && (*p == ' '))
+          prefix--, p++;
+        // then comment part
         while (prefix > 0 && p < e &&
-               (*p == ' ' || *p == '/' || *p == '*' || *p == '<' || *p == '!'))
+               (*p == '/' || *p == '*' || *p == '<' || *p == '!'))
+          prefix--, p++;
+        // then spaces after comment part
+        while (prefix > 0 && p < e && (*p == ' '))
           prefix--, p++;
       }
       ret.insert(ret.end(), p, q);
