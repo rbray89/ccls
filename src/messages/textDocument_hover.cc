@@ -86,7 +86,7 @@ getHover(DB *db, LanguageId lang, SymbolRef sym, int file_id) {
           if (!hover)
             hover = {MarkupKind::Markdown, markdown_code(lang, s)};
           else if (strlen(s) > hover->value.size())
-            hover->value = s;
+            hover->value = markdown_code(lang, s);
         }
         if (d.spell->file_id == file_id)
           break;
