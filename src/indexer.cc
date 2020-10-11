@@ -581,6 +581,7 @@ public:
       init = fd->getInClassInitializer();
     } else if (auto *bd = dyn_cast<BindingDecl>(d)) {
       t = bd->getType();
+      t = t.getCanonicalType();
       deduced = true;
     }
     if (!t.isNull()) {
