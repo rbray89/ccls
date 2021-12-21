@@ -41,26 +41,27 @@ jobs:
       - name: install clang-12-dev
         run: |
           sudo apt -y update
-          sudo apt -y upgrade
-          sudo apt -y purge llvm-12-dev clang-12
-          sudo apt -y -f install --allow-downgrades libclang-12-dev=1:12.0.0-3ubuntu1~20.04.3 libclang1-12=1:12.0.0-3ubuntu1~20.04.3 libclang-common-12-dev=1:12.0.0-3ubuntu1~20.04.3 libllvm12=1:12.0.0-3ubuntu1~20.04.3 clang-12=1:12.0.0-3ubuntu1~20.04.3 llvm-12-dev=1:12.0.0-3ubuntu1~20.04.3 libclang-cpp12=1:12.0.0-3ubuntu1~20.04.3 llvm-12-linker-tools=1:12.0.0-3ubuntu1~20.04.3 libomp-12-dev llvm-12=1:12.0.0-3ubuntu1~20.04.3 llvm-12-tools=1:12.0.0-3ubuntu1~20.04.3 llvm-12-runtime=1:12.0.0-3ubuntu1~20.04.3
-      - name: update-alternative list all
-        run: |
-          update-alternatives --get-selections
-          update-alternatives --list c++
-          update-alternatives --list cc
-          update-alternatives --list clang
-          update-alternatives --list clang++
-      - name: configure clang and llvm
-        run: |
-          sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++ 99
-          sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang 99
-          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-12 99
-          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-12 99
-          sudo update-alternatives --set c++ /usr/bin/clang++
-          sudo update-alternatives --set cc /usr/bin/clang
-          sudo update-alternatives --set clang /usr/bin/clang-12
-          sudo update-alternatives --set clang++ /usr/bin/clang++-12
+          sudo apt -y install libclang-12-dev llvm-12-dev clang-12
+      #     sudo apt -y upgrade
+      #     sudo apt -y purge llvm-12-dev clang-12
+      #     sudo apt -y -f install --allow-downgrades libclang-12-dev=1:12.0.0-3ubuntu1~20.04.3 libclang1-12=1:12.0.0-3ubuntu1~20.04.3 libclang-common-12-dev=1:12.0.0-3ubuntu1~20.04.3 libllvm12=1:12.0.0-3ubuntu1~20.04.3 clang-12=1:12.0.0-3ubuntu1~20.04.3 llvm-12-dev=1:12.0.0-3ubuntu1~20.04.3 libclang-cpp12=1:12.0.0-3ubuntu1~20.04.3 llvm-12-linker-tools=1:12.0.0-3ubuntu1~20.04.3 libomp-12-dev llvm-12=1:12.0.0-3ubuntu1~20.04.3 llvm-12-tools=1:12.0.0-3ubuntu1~20.04.3 llvm-12-runtime=1:12.0.0-3ubuntu1~20.04.3
+      # - name: update-alternative list all
+      #   run: |
+      #     update-alternatives --get-selections
+      #     update-alternatives --list c++
+      #     update-alternatives --list cc
+      #     update-alternatives --list clang
+      #     update-alternatives --list clang++
+      # - name: configure clang and llvm
+      #   run: |
+      #     sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++ 99
+      #     sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang 99
+      #     sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-12 99
+      #     sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-12 99
+      #     sudo update-alternatives --set c++ /usr/bin/clang++
+      #     sudo update-alternatives --set cc /usr/bin/clang
+      #     sudo update-alternatives --set clang /usr/bin/clang-12
+      #     sudo update-alternatives --set clang++ /usr/bin/clang++-12
       - name: clang version
         run: |
           clang++ --version
